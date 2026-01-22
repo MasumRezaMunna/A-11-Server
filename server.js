@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const userRouter = require('./routes/userRoutes');
+const tuitionRouter = require('./routes/tuitionRoutes');
 
 dotenv.config();
 const app = express();
@@ -10,6 +12,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+// API Routes
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/tuitions', tuitionRouter);
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
