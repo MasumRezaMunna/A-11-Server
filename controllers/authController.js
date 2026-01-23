@@ -8,19 +8,22 @@ const signToken = (id) => {
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-    const newUser = await User.create({ name, email, password, role });
+    const newUser = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      role: req.body.role
+    });
 
     const token = signToken(newUser._id);
-    res.cookie('jwt', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
-    res.status(201).json({ status: 'success', data: { user: newUser } });
+    res.status(201).json({
+      status: 'success',
+      token, 
+      data: { user: newUser }
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ status: 'fail', message: err.message });
   }
 };
 
