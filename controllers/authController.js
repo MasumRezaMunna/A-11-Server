@@ -39,3 +39,20 @@ exports.login = async (req, res) => {
   res.cookie('jwt', token, { httpOnly: true });
   res.status(200).json({ status: 'success', token, user });
 };
+
+exports.loginSync = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.user.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found in database" });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      user: user 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
