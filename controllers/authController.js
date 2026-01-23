@@ -6,7 +6,7 @@ const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   try {
     const newUser = await User.create({
       name: req.body.name,
@@ -23,7 +23,7 @@ exports.register = async (req, res) => {
       data: { user: newUser }
     });
   } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
+    next(err);
   }
 };
 

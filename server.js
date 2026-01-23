@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
 const tuitionRouter = require('./routes/tuitionRoutes');
 
@@ -14,8 +15,19 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 // API Routes
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tuitions', tuitionRouter);
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(500).json({
+    status: 'error',
+    message: err.message || 'Something went wrong'
+  });
+});
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -23,4 +35,10 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error("Connection Error:", err));
 
 const PORT = process.env.PORT || 5000;
+
+
+
+
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
