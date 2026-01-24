@@ -30,3 +30,20 @@ exports.getTutorProfile = async (req, res) => {
     res.status(400).json({ status: 'fail', message: err.message });
   }
 };
+
+exports.updateMe = async (req, res) => {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email: req.user.email }, 
+      { profileImage: req.body.profileImage },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: { user: updatedUser }
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err.message });
+  }
+};
