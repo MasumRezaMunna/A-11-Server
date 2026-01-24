@@ -6,15 +6,36 @@ const dotenv = require('dotenv');
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
 const tuitionRouter = require('./routes/tuitionRoutes');
+const helmet = require('helmet');
+const hireRouter = require('./routes/hireRoutes');
 
 dotenv.config();
 const app = express();
+app.use('/api/v1/hire', hireRouter);
+
 
 // Middleware
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+}));
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: "Welcome to eTuitionBd API!",
+    status: "Active"
+  });
+});
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", "http://localhost:5000", "https://*.firebaseio.com", "https://*.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https://firebasestorage.googleapis.com"],
+    },
+  },
 }));
 
 app.use(express.json());
