@@ -2,20 +2,15 @@ const User = require('../models/User');
 
 exports.getFeaturedTutors = async (req, res) => {
   try {
-    const tutors = await User.find({ role: 'tutor' })
-      .limit(4) 
-      .select('name education profileImage subjects rating'); 
+    const filter = req.query.role ? { role: req.query.role } : { role: 'tutor' };
+    const users = await User.find(filter);
 
     res.status(200).json({
       status: 'success',
-      results: tutors.length,
-      data: { tutors }
+      data: { users }
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message
-    });
+    res.status(400).json({ status: 'error', message: err.message });
   }
 };
 
@@ -45,5 +40,45 @@ exports.updateMe = async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ status: 'fail', message: err.message });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const filter = req.query.role ? { role: req.query.role } : {};
+    
+    const users = await User.find(filter);
+
+    res.status(200).json({
+      status: 'success',
+      results: users.length,
+      data: { users }
+    });
+  } catch (err) {
+    res.status(404).json({ status: 'fail', message: err.message });
+  }
+};
+
+
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tutor found with that ID'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { user }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message
+    });
   }
 };
