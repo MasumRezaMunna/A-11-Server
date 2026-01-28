@@ -3,20 +3,27 @@ const User = require('../models/User');
 
 exports.sendRequest = async (req, res) => {
   try {
-    const student = await User.findOne({ email: req.user.email });
-    
-    if (student._id.toString() === req.body.tutorId) {
+    const studentEmail = req.user.email;
+    const student = await User.findOne({ email: studentEmail });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student account not found in database" });
+    }
+
+    const { tutorId, message } = req.body;
+
+    if (student._id.toString() === tutorId) {
       return res.status(400).json({ message: "You cannot hire yourself!" });
     }
 
     const newRequest = await HireRequest.create({
       student: student._id,
-      tutor: req.body.tutorId,
-      message: req.body.message
+      tutor: tutorId,
+      message
     });
 
     res.status(201).json({ status: 'success', data: newRequest });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
