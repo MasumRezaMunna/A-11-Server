@@ -11,7 +11,6 @@ const hireRouter = require("./routes/hireRoutes");
 
 dotenv.config();
 const app = express();
-app.use("/api/v1/hire", hireRouter);
 
 // Middleware
 app.use(
@@ -54,6 +53,8 @@ app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tuitions", tuitionRouter);
+app.use("/api/v1/hire", hireRouter);
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

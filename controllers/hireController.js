@@ -27,3 +27,26 @@ exports.sendRequest = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+exports.getMyRequests = async (req, res) => {
+  try {
+    const tutor = await User.findOne({ email: req.user.email });
+    
+    if (!tutor) {
+      return res.status(404).json({ message: "Tutor not found" });
+    }
+
+    const requests = await HireRequest.find({ tutor: tutor._id })
+      .populate('student', 'name email')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      status: 'success',
+      results: requests.length,
+      data: { requests }
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
