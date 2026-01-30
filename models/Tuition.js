@@ -13,4 +13,10 @@ const tuitionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+student: {
+  type: mongoose.Schema.Types.ObjectId;
+  ref: 'User';
+  required: [true, 'A tuition must belong to a student']
+}
+
 module.exports = mongoose.model('Tuition', tuitionSchema);

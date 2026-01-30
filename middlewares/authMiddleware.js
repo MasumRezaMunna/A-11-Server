@@ -24,16 +24,30 @@ exports.verifyFirebaseToken = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization?.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
+  try {
+    let token;
+    if (req.headers.authorization?.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({ message: "You are not logged in" });
+    }
+
+    const decodedFirebaseUser = await admin.auth().verifyIdToken(token);
+
+    const currentUser = await User.findOne({ email: decodedFirebaseUser.email });
+
+    if (!currentUser) {
+      return res.status(401).json({ message: "This user does not exist in our database" });
+    }
+
+    req.user = currentUser;
+    next();
+  } catch (error) {
+    console.error("Auth Middleware Error:", error.message);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
-
-  if (!token) return res.status(401).json({ message: "You are not logged in" });
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = await User.findById(decoded.id);
-  next();
 };
 
 exports.restrictTo = (...roles) => {

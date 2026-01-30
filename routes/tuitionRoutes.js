@@ -20,6 +20,14 @@ const Tuition = require('../models/Tuition');
 
 
 router.get('/', tuitionController.getAllTuitions);
+router.get('/all', async (req, res) => {
+  try {
+    const tuitions = await Tuition.find({ status: 'open' }).sort('-createdAt');
+    res.status(200).json({ status: 'success', data: tuitions });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 router.post('/', 
   authMiddleware.protect, 

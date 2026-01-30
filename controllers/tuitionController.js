@@ -1,55 +1,61 @@
-const Tuition = require('../models/Tuition');
+const Tuition = require("../models/Tuition");
 
 exports.getAllTuitions = async (req, res) => {
   try {
-    
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
-    excludedFields.forEach(el => delete queryObj[el]);
+    const excludedFields = ["page", "sort", "limit", "fields", "search"];
+    excludedFields.forEach((el) => delete queryObj[el]);
 
-    
     if (req.query.search) {
       queryObj.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { subject: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: req.query.search, $options: "i" } },
+        { subject: { $regex: req.query.search, $options: "i" } },
       ];
     }
 
-   
-    let query = Tuition.find(queryObj).populate('student', 'name email');
+    let query = Tuition.find(queryObj).populate("student", "name email");
 
-    
     if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
+      const sortBy = req.query.sort.split(",").join(" ");
       query = query.sort(sortBy);
     } else {
-      query = query.sort('-createdAt');
+      query = query.sort("-createdAt");
     }
 
-    
     const tuitions = await query;
 
-    
     res.status(200).json({
-      status: 'success',
+      status: "success",
       results: tuitions.length,
-      data: { tuitions }
+      data: { tuitions },
     });
   } catch (err) {
-    res.status(404).json({ status: 'fail', message: err.message });
+    res.status(404).json({ status: "fail", message: err.message });
   }
 };
 
 exports.createTuition = async (req, res) => {
   try {
-    
+    console.log("User from middleware:", req.user);
+
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
     const newTuition = await Tuition.create({
       ...req.body,
-      student: req.user.id
+      student: req.user._id,
     });
 
-    res.status(201).json({ status: 'success', data: { tuition: newTuition } });
+    res.status(201).json({
+      status: "success",
+      data: { tuition: newTuition },
+    });
   } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
+    console.error("BACKEND ERROR:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
   }
 };

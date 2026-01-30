@@ -1,4 +1,3 @@
-// server/server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,6 +7,7 @@ const userRouter = require("./routes/userRoutes");
 const tuitionRouter = require("./routes/tuitionRoutes");
 const helmet = require("helmet");
 const hireRouter = require("./routes/hireRoutes");
+const tuitionRoutes = require('./routes/tuitionRoutes');
 
 dotenv.config();
 const app = express();
@@ -54,7 +54,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tuitions", tuitionRouter);
 app.use("/api/v1/hire", hireRouter);
-
+app.use('/api/v1/tuitions', tuitionRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
