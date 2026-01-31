@@ -1,4 +1,6 @@
 const Tuition = require("../models/Tuition");
+const Application = require('../models/Application');
+
 
 exports.getAllTuitions = async (req, res) => {
   try {
@@ -74,5 +76,29 @@ exports.createTuition = async (req, res) => {
       status: "error",
       message: err.message,
     });
+  }
+};
+
+
+exports.applyToTuition = async (req, res) => {
+  try {
+    const tuitionId = req.params.id;
+    const tutorId = req.user._id;
+
+    const tuition = await Tuition.findById(tuitionId);
+    if (!tuition) return res.status(404).json({ message: "Tuition not found" });
+
+    const existingApp = await Application.findOne({ tuition: tuitionId, tutor: tutorId });
+    if (existingApp) return res.status(400).json({ message: "You already applied to this!" });
+
+    const newApp = await Application.create({
+      tuition: tuitionId,
+      tutor: tutorId,
+      student: tuition.student
+    });
+
+    res.status(201).json({ status: 'success', data: newApp });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

@@ -36,4 +36,11 @@ router.post(
   tuitionController.createTuition,
 );
 
+
+router.post('/:id/apply', 
+  authMiddleware.protect, 
+  authMiddleware.restrictTo('tutor'), 
+  tuitionController.applyToTuition
+);
+
 module.exports = router;
