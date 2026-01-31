@@ -27,10 +27,27 @@ exports.getAllTuitions = async (req, res) => {
     res.status(200).json({
       status: "success",
       results: tuitions.length,
-      data: { tuitions },
+      data: tuitions ,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err.message });
+  }
+};
+
+exports.getTuition = async (req, res) => {
+  try {
+    const tuition = await Tuition.findById(req.params.id).populate('student', 'name email');
+    
+    if (!tuition) {
+      return res.status(404).json({ status: 'fail', message: 'No tuition found with that ID' });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { tuition }
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'error', message: err.message });
   }
 };
 
