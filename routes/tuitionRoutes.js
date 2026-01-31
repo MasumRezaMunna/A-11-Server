@@ -48,4 +48,10 @@ router.post('/:id/apply',
   tuitionController.applyToTuition
 );
 
+router.patch('/applications/:appId/status', 
+  authMiddleware.protect, 
+  authMiddleware.restrictTo('student'), 
+  tuitionController.updateApplicationStatus
+);
+
 module.exports = router;

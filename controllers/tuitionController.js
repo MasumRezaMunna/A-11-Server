@@ -118,3 +118,30 @@ exports.getStudentDashboard = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { appId } = req.params;
+
+    const application = await Application.findById(appId);
+    
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    if (application.student.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not authorized to update this" });
+    }
+
+    application.status = status;
+    await application.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: application
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
