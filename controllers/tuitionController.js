@@ -102,3 +102,19 @@ exports.applyToTuition = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getStudentDashboard = async (req, res) => {
+  try {
+    const applications = await Application.find({ student: req.user._id })
+      .populate('tutor', 'name email')
+      .populate('tuition', 'title subject')
+      .sort('-appliedAt');
+
+    res.status(200).json({
+      status: 'success',
+      data: applications
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

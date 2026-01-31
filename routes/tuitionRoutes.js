@@ -36,6 +36,11 @@ router.post(
   tuitionController.createTuition,
 );
 
+router.get('/my-applications', 
+  authMiddleware.protect, 
+  authMiddleware.restrictTo('student'), 
+  tuitionController.getStudentDashboard
+);
 
 router.post('/:id/apply', 
   authMiddleware.protect, 
