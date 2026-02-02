@@ -29,6 +29,18 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.get('/my-applications', 
+  authMiddleware.protect, 
+  authMiddleware.restrictTo('student'), 
+  tuitionController.getStudentDashboard
+);
+
+router.get('/my-sent-applications', 
+  authMiddleware.protect, 
+  authMiddleware.restrictTo('tutor'), 
+  tuitionController.getTutorDashboard
+);
+
 router.post(
   "/",
   authMiddleware.protect,
@@ -36,11 +48,6 @@ router.post(
   tuitionController.createTuition,
 );
 
-router.get('/my-applications', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('student'), 
-  tuitionController.getStudentDashboard
-);
 
 router.post('/:id/apply', 
   authMiddleware.protect, 

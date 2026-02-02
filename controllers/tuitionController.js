@@ -145,3 +145,20 @@ exports.updateApplicationStatus = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getTutorDashboard = async (req, res) => {
+  try {
+    const applications = await Application.find({ tutor: req.user._id })
+      .populate('tuition', 'title subject salary location')
+      .populate('student', 'name')
+      .sort('-appliedAt');
+
+    res.status(200).json({
+      status: 'success',
+      results: applications.length,
+      data: applications
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
