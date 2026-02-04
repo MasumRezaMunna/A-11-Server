@@ -83,3 +83,32 @@ exports.getUser = async (req, res) => {
     });
   }
 };
+
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort('-createdAt');
+    res.status(200).json({ status: 'success', data: users });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
+    res.status(200).json({ status: 'success', data: user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.status(204).json({ status: 'success', data: null });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};

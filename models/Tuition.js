@@ -9,7 +9,7 @@ const tuitionSchema = new mongoose.Schema({
   salary: { type: Number, required: true },
   daysPerWeek: { type: Number, required: true },
   description: { type: String, required: true },
-  status: { type: String, enum: ['open', 'closed'], default: 'open' },
+  status: { type: String, enum: ['pending','approved', 'rejected'], default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });
 

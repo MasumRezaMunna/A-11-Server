@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', userController.getFeaturedTutors); 
 
-router.get('/notifications/count', authMiddleware.protect, userController.getNotificationCount);
+// router.get('/notifications/count', authMiddleware.protect, userController.getNotificationCount);
 
 router.patch('/update-me', verifyFirebaseToken, userController.updateMe);
 
