@@ -2,11 +2,16 @@ const Tuition = require("../models/Tuition");
 const Application = require('../models/Application');
 
 
+
+
 exports.getAllTuitions = async (req, res) => {
   try {
     const queryObj = { ...req.query };
+    
     const excludedFields = ["page", "sort", "limit", "fields", "search"];
     excludedFields.forEach((el) => delete queryObj[el]);
+
+    queryObj.status = 'approved';
 
     if (req.query.search) {
       queryObj.$or = [
@@ -79,11 +84,50 @@ exports.createTuition = async (req, res) => {
   }
 };
 
+exports.getAdminTuitions = async (req, res) => {
+  try {
+    const tuitions = await Tuition.find()
+      .populate('student', 'name email')
+      .sort('-createdAt');
+      
+    res.status(200).json({
+      status: 'success',
+      results: tuitions.length,
+      data: tuitions
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updateTuitionStatus = async (req, res) => {
+  try {
+    const { status } = req.body; 
+    const tuition = await Tuition.findByIdAndUpdate(
+      req.params.id, 
+      { status }, 
+      { new: true, runValidators: true }
+    );
+
+    if (!tuition) {
+      return res.status(404).json({ message: "Tuition post not found" });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: tuition
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 
 exports.applyToTuition = async (req, res) => {
   try {
     const tuitionId = req.params.id;
     const tutorId = req.user._id;
+    const { qualifications, experience, expectedSalary } = req.body; 
 
     const tuition = await Tuition.findById(tuitionId);
     if (!tuition) return res.status(404).json({ message: "Tuition not found" });
@@ -94,7 +138,10 @@ exports.applyToTuition = async (req, res) => {
     const newApp = await Application.create({
       tuition: tuitionId,
       tutor: tutorId,
-      student: tuition.student
+      student: tuition.student,
+      qualifications,
+      experience,     
+      expectedSalary 
     });
 
     res.status(201).json({ status: 'success', data: newApp });
@@ -106,13 +153,13 @@ exports.applyToTuition = async (req, res) => {
 exports.getStudentDashboard = async (req, res) => {
   try {
     const applications = await Application.find({ student: req.user._id })
-      .populate('tutor', 'name email')
-      .populate('tuition', 'title subject')
-      .sort('-appliedAt');
+      .populate('tutor', 'name email profileImage')
+      .populate('tuition', 'title subject salary')
+      .sort('-createdAt');
 
     res.status(200).json({
       status: 'success',
-      data: applications
+      data: applications 
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
