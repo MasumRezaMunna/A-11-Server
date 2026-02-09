@@ -1,27 +1,61 @@
 const express = require("express");
 const router = express.Router();
 const tuitionController = require("../controllers/tuitionController");
-const authMiddleware = require("../middlewares/authMiddleware");
-// const verifyFirebaseToken = require('../middleware/auth');
-const Tuition = require("../models/Tuition");
+const paymentController = require('../controllers/paymentController');
+const { verifyFirebaseToken, protect, restrictTo } = require("../middlewares/authMiddleware");
 
-// router.post('/post', verifyFirebaseToken, async (req, res) => {
-//   try {
-//     const newTuition = new Tuition({
-//       ...req.body,
-//       student: req.user.mongoId
-//     });
-//     await newTuition.save();
-//     res.status(201).json({ status: 'success', data: newTuition });
-//   } catch (err) {
-//     res.status(400).json({ message: err.message });
-//   }
-// });
+
+router.get(
+  "/my-applications",
+  verifyFirebaseToken, 
+  tuitionController.getMyApplications
+);
+
+router.post(
+  "/",
+  protect,
+  restrictTo("student"),
+  tuitionController.createTuition
+);
+
+router.patch(
+  "/applications/:appId/status",
+  protect,
+  restrictTo("student"),
+  tuitionController.updateApplicationStatus
+);
+
+
+
+router.get(
+  "/my-sent-applications",
+  protect,
+  restrictTo("tutor"),
+  tuitionController.getTutorDashboard
+);
+
+router.post(
+  "/:id/apply",
+  protect,
+  restrictTo("tutor"),
+  tuitionController.applyToTuition
+);
+
+
+
+router.post(
+  "/create-checkout-session",
+  verifyFirebaseToken,
+  paymentController.createCheckoutSession
+);
+
+
 
 router.get("/", tuitionController.getAllTuitions);
-router.get("/:id", tuitionController.getTuition);
-router.get("/all", async (req, res) => {
+
+router.get("/all-open", async (req, res) => {
   try {
+    const Tuition = require("../models/Tuition");
     const tuitions = await Tuition.find({ status: "open" }).sort("-createdAt");
     res.status(200).json({ status: "success", data: tuitions });
   } catch (err) {
@@ -29,36 +63,6 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.get('/my-applications', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('student'), 
-  tuitionController.getStudentDashboard
-);
-
-router.get('/my-sent-applications', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('tutor'), 
-  tuitionController.getTutorDashboard
-);
-
-router.post(
-  "/",
-  authMiddleware.protect,
-  authMiddleware.restrictTo("student"),
-  tuitionController.createTuition,
-);
-
-
-router.post('/:id/apply', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('tutor'), 
-  tuitionController.applyToTuition
-);
-
-router.patch('/applications/:appId/status', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('student'), 
-  tuitionController.updateApplicationStatus
-);
+router.get("/:id", tuitionController.getTuition);
 
 module.exports = router;

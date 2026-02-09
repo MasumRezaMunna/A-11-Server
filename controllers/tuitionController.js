@@ -29,53 +29,48 @@ exports.getAllTuitions = async (req, res) => {
     res.status(200).json({
       status: "success",
       results: tuitions.length,
-      data: tuitions ,
+      data: tuitions,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err.message });
   }
 };
 
-exports.getTuition = async (req, res) => {
+
+exports.getMyApplications = async (req, res) => {
   try {
-    const tuition = await Tuition.findById(req.params.id).populate('student', 'name email');
-    
-    if (!tuition) {
-      return res.status(404).json({ status: 'fail', message: 'No tuition found with that ID' });
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ status: "fail", message: "User not authenticated" });
     }
 
+    const applications = await Application.find({ student: req.user._id })
+      .populate('tutor', 'name email')
+      .populate('tuition', 'title subject salary')
+      .sort('-appliedAt');
+
     res.status(200).json({
-      status: 'success',
-      data: { tuition }
+      status: "success",
+      results: applications.length,
+      data: applications,
     });
   } catch (err) {
-    res.status(400).json({ status: 'error', message: err.message });
+    res.status(400).json({ status: "fail", message: err.message });
   }
 };
 
+
 exports.createTuition = async (req, res) => {
   try {
-    console.log("User from middleware:", req.user);
-
-    if (!req.user) {
-      return res.status(401).json({ message: "User not authenticated" });
-    }
+    if (!req.user) return res.status(401).json({ message: "User not authenticated" });
 
     const newTuition = await Tuition.create({
       ...req.body,
       student: req.user._id,
     });
 
-    res.status(201).json({
-      status: "success",
-      data: { tuition: newTuition },
-    });
+    res.status(201).json({ status: "success", data: { tuition: newTuition } });
   } catch (err) {
-    console.error("BACKEND ERROR:", err.message);
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
+    res.status(500).json({ status: "error", message: err.message });
   }
 };
 
@@ -89,12 +84,12 @@ exports.applyToTuition = async (req, res) => {
     if (!tuition) return res.status(404).json({ message: "Tuition not found" });
 
     const existingApp = await Application.findOne({ tuition: tuitionId, tutor: tutorId });
-    if (existingApp) return res.status(400).json({ message: "You already applied to this!" });
+    if (existingApp) return res.status(400).json({ message: "You already applied!" });
 
     const newApp = await Application.create({
       tuition: tuitionId,
       tutor: tutorId,
-      student: tuition.student
+      student: tuition.student 
     });
 
     res.status(201).json({ status: 'success', data: newApp });
@@ -103,21 +98,6 @@ exports.applyToTuition = async (req, res) => {
   }
 };
 
-exports.getStudentDashboard = async (req, res) => {
-  try {
-    const applications = await Application.find({ student: req.user._id })
-      .populate('tutor', 'name email')
-      .populate('tuition', 'title subject')
-      .sort('-appliedAt');
-
-    res.status(200).json({
-      status: 'success',
-      data: applications
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
 exports.updateApplicationStatus = async (req, res) => {
   try {
@@ -125,26 +105,21 @@ exports.updateApplicationStatus = async (req, res) => {
     const { appId } = req.params;
 
     const application = await Application.findById(appId);
-    
-    if (!application) {
-      return res.status(404).json({ message: "Application not found" });
-    }
+    if (!application) return res.status(404).json({ message: "Application not found" });
 
     if (application.student.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not authorized to update this" });
+      return res.status(403).json({ message: "Not authorized" });
     }
 
     application.status = status;
     await application.save();
 
-    res.status(200).json({
-      status: 'success',
-      data: application
-    });
+    res.status(200).json({ status: 'success', data: application });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 exports.getTutorDashboard = async (req, res) => {
   try {
@@ -153,12 +128,18 @@ exports.getTutorDashboard = async (req, res) => {
       .populate('student', 'name')
       .sort('-appliedAt');
 
-    res.status(200).json({
-      status: 'success',
-      results: applications.length,
-      data: applications
-    });
+    res.status(200).json({ status: 'success', results: applications.length, data: applications });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getTuition = async (req, res) => {
+  try {
+    const tuition = await Tuition.findById(req.params.id).populate('student', 'name email');
+    if (!tuition) return res.status(404).json({ status: 'fail', message: 'Not found' });
+    res.status(200).json({ status: 'success', data: { tuition } });
+  } catch (err) {
+    res.status(400).json({ status: 'error', message: err.message });
   }
 };
