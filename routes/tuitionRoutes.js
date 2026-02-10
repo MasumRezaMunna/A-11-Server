@@ -25,7 +25,12 @@ router.patch(
   tuitionController.updateApplicationStatus
 );
 
-
+router.patch(
+  "/:id/approve",
+  protect,
+  restrictTo("admin"),
+  tuitionController.approveTuition
+);
 
 router.get(
   "/my-sent-applications",

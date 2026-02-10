@@ -18,5 +18,10 @@ student: {
   ref: 'User';
   required: [true, 'A tuition must belong to a student']
 }
+status: {
+  type: String,
+  enum: ['pending', 'approved', 'rejected'],
+  default: 'pending'
+}
 
 module.exports = mongoose.model('Tuition', tuitionSchema);
