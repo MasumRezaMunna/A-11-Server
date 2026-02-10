@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const tuitionController = require("../controllers/tuitionController");
-const paymentController = require('../controllers/paymentController');
+// const paymentController = require('../controllers/paymentController');
 const { verifyFirebaseToken, protect, restrictTo } = require("../middlewares/authMiddleware");
 
 
@@ -43,11 +43,11 @@ router.post(
 
 
 
-router.post(
-  "/create-checkout-session",
-  verifyFirebaseToken,
-  paymentController.createCheckoutSession
-);
+// router.post(
+//   "/create-checkout-session",
+//   verifyFirebaseToken,
+//   paymentController.createCheckoutSession
+// );
 
 
 
