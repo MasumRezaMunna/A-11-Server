@@ -12,17 +12,28 @@ const hireRouter = require("./routes/hireRoutes");
 
 const app = express();
 
-// Middleware
+const allowedOrigins = [
+  'http://localhost:5173',          // For local development
+  'https://a-11-teal.vercel.app'    // For your live Vercel site
+];
+
 app.use(
   cors({
-    origin: "process.env.CLIENT_URL",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     optionsSuccessStatus: 204
-  }),
+  })
 );
-
 app.use(helmet({
     contentSecurityPolicy: false, 
 }));
@@ -40,4 +51,7 @@ mongoose
   .catch((err) => console.error("Connection Error:", err));
 
 const PORT = process.env.PORT || 5000;
+app.get("/", (req, res) => {
+  res.send("Server is running perfectly!");
+});
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
