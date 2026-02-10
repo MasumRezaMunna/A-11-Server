@@ -43,11 +43,7 @@ router.post(
 
 
 
-// router.post(
-//   "/create-checkout-session",
-//   verifyFirebaseToken,
-//   paymentController.createCheckoutSession
-// );
+
 
 
 
