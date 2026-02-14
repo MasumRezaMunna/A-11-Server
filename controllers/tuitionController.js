@@ -155,3 +155,22 @@ exports.getTuition = async (req, res) => {
     res.status(400).json({ status: "error", message: err.message });
   }
 };
+exports.updateTuitionStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; 
+
+    const updatedTuition = await Tuition.findByIdAndUpdate(
+      id, 
+      { status }, 
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: updatedTuition
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err.message });
+  }
+};

@@ -1,58 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const tuitionController = require("../controllers/tuitionController");
-// const paymentController = require('../controllers/paymentController');
 const { verifyFirebaseToken, protect, restrictTo } = require("../middlewares/authMiddleware");
-
-
-router.get(
-  "/my-applications",
-  verifyFirebaseToken, 
-  tuitionController.getMyApplications
-);
-
-router.post(
-  "/",
-  protect,
-  restrictTo("student"),
-  tuitionController.createTuition
-);
-
-router.patch(
-  "/applications/:appId/status",
-  protect,
-  restrictTo("student"),
-  tuitionController.updateApplicationStatus
-);
-
-router.patch(
-  "/:id/approve",
-  protect,
-  restrictTo("admin"),
-  tuitionController.approveTuition
-);
-
-router.get(
-  "/my-sent-applications",
-  protect,
-  restrictTo("tutor"),
-  tuitionController.getTutorDashboard
-);
-
-router.post(
-  "/:id/apply",
-  protect,
-  restrictTo("tutor"),
-  tuitionController.applyToTuition
-);
-
-
-
-
-
-
-
-router.get("/", tuitionController.getAllTuitions);
 
 router.get("/all-open", async (req, res) => {
   try {
@@ -63,6 +12,63 @@ router.get("/all-open", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+router.get(
+  "/my-applications",
+  verifyFirebaseToken, 
+  tuitionController.getMyApplications
+);
+
+router.get(
+  "/my-sent-applications",
+  protect,
+  restrictTo("tutor"),
+  tuitionController.getTutorDashboard
+);
+
+router.post(
+  "/",
+  protect,
+  restrictTo("student"),
+  tuitionController.createTuition
+);
+
+router.post(
+  "/:id/apply",
+  protect,
+  restrictTo("tutor"),
+  tuitionController.applyToTuition
+);
+
+router.patch(
+  "/:id/status",
+  protect,
+  restrictTo("admin"),
+  tuitionController.updateTuitionStatus
+);
+
+router.patch(
+  "/applications/:appId/status",
+  protect,
+  restrictTo("student"),
+  tuitionController.updateApplicationStatus
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.get("/", tuitionController.getAllTuitions);
+
+
 
 router.get("/:id", tuitionController.getTuition);
 
