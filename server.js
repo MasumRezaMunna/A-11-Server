@@ -13,21 +13,13 @@ const hireRouter = require("./routes/hireRoutes");
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:5173',          // For local development
-  'https://a-11-teal.vercel.app'    // For your live Vercel site
+  'http://localhost:5173',          
+  'https://a-11-teal.vercel.app'    
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
