@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
 const tuitionSchema = new mongoose.Schema({
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  student: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: [true, 'A tuition must belong to a student'] 
+  },
   title: { type: String, required: true },
   subject: { type: String, required: true },
   class: { type: String, required: true },
@@ -9,19 +13,14 @@ const tuitionSchema = new mongoose.Schema({
   salary: { type: Number, required: true },
   daysPerWeek: { type: Number, required: true },
   description: { type: String, required: true },
-  status: { type: String, enum: ['open', 'closed'], default: 'open' },
+  status: {
+    type: String,
+    required: true,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
-student: {
-  type: mongoose.Schema.Types.ObjectId;
-  ref: 'User';
-  required: [true, 'A tuition must belong to a student']
-}
-status: {
-  type: String,
-  enum: ['pending', 'approved', 'rejected'],
-  default: 'pending'
-}
 
 module.exports = mongoose.model('Tuition', tuitionSchema);
