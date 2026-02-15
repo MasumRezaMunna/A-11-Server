@@ -1,4 +1,3 @@
-// server/routes/userRoutes.js
 const express = require("express");
 const userController = require("../controllers/userController");
 const { verifyFirebaseToken } = require("../middlewares/authMiddleware");
