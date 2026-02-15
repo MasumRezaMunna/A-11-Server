@@ -1,6 +1,7 @@
-const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const User = require("../models/User");
+const admin = require("../config/firebaseAdmin");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -54,5 +55,40 @@ exports.loginSync = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+
+exports.registerWithFirebase = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
+
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    let user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      user = await User.create({
+        email: decoded.email,
+        name: decoded.name || "User",
+        role: "user",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: { user },
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: "Registration failed" });
   }
 };
