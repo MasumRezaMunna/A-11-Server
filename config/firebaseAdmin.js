@@ -1,4 +1,8 @@
 const admin = require("firebase-admin");
+console.log("--- Firebase Admin Debug ---");
+console.log("Env Project ID:", process.env.FIREBASE_PROJECT_ID ? "Found" : "NOT FOUND");
+console.log("Env Client Email:", process.env.FIREBASE_CLIENT_EMAIL ? "Found" : "NOT FOUND");
+console.log("--- End Debug ---");
 
 if (!admin.apps.length) {
   try {
