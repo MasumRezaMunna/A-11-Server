@@ -17,7 +17,7 @@ const tuitionSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
+    default: 'approved'
   },
   createdAt: { type: Date, default: Date.now }
 });
